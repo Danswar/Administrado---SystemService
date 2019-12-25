@@ -124,11 +124,65 @@ body{
     background-color: blue;
     border-radius: 50%;
   }
-
   .font-1{
     font-size: 1.1rem !important;
     font-weight: bold !important;
   }
+  .color-entregado{
+    background-color: blue !important;
+  }
+  .color-pendiente{
+    background-color: #6699FF !important;
+  }
+  .color-ok{
+    background-color: green !important;
+  }
+  .color-no{
+    background-color: red !important;
+  }
+  .color-demorado{
+    background-color: purple !important;
+  }
+  .color-consulta{
+    background-color: #FFCC00 !important;
+  }
+  .color-serv-foraneo{
+    background-color: rgb(68, 66, 66) !important;
+  }
+  .color-continuar{
+    background-color: #660099 !important;
+  }
+  .color-hibernar{
+    background-color: rgb(68, 66, 66) !important;
+  }
+  .color-visto{
+    background-color: green !important;
+  }
+  .form-estados button{
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background-color: inherit !important;
+  }
+  #form-inicial{
+    border:#d3d7d3 solid 1px;
+    padding: 2rem !important;
+    border-radius: 10px;
+  }
+  #form-inicial p{
+    margin: 1rem auto .8rem auto !important;
+  }
+  #form-inicial input{
+    border: none;
+    border-bottom: rgb(68, 66, 66) solid 1px;
+    text-align: center;
+    font-size: 1.5rem;
+    color: #2607d7;
+    margin-bottom: .5rem; 
+  }
+  
+
+
   
 
 

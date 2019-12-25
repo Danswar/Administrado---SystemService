@@ -4,9 +4,9 @@
   include './back/funciones_varias.php';
   
   $search_param="";
-  $single_result=false;
-
-  // Recibimos un mensajes nuevo para el chat  
+  $exito=false;
+  
+  //CONTROL DE EDICION
   if( !empty($_POST) ){
     
     if( isset($_POST['CUERPO']) && $_POST['CUERPO']!=""){
@@ -22,13 +22,18 @@
     
     }
 
-    
+    if(isset($_POST['ESTADO'])){
+      $estado = $_POST['ESTADO'];
+      $sql_update = "UPDATE `ordenesfirmadas` SET `ESTADO`='$estado' WHERE `ID`='$id_rep'";
+      ejecutarConsulta($sql_update);
+    }
+
   }
 
 
 
 
-  if( isset($_GET['id']) && $_GET['id']!="" ){
+  if( isset($_GET['id'])){
 
     $id = $_GET['id'];
     $search_param = $id;
@@ -37,7 +42,7 @@
     $consulta="select * from vistachat where id= '{$id}'";
     
     $registro= ejecutarConsulta( $consulta );
-    $single_result= $registro;
+    $exito= $registro;
 
     if($registro){
                  
@@ -127,7 +132,7 @@
 
         <form method="GET" class="col-md-4  d-flex align-items-center">
           <div class="input-group">
-            <input name="id" type="text" class="form-control" placeholder="Nro. orden, tlf, etc"
+            <input name="id" type="text" class="form-control" placeholder="Busca un nro. de orden"
               aria-label="Recipient's username" aria-describedby="button-addon2" value="<?php echo $search_param;?>">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary color-main" type="submit" id="button-addon2"><i
@@ -155,21 +160,36 @@
       <div class="row">
         <!-- ASIDE -->
         <div class="col-md-3">
-          <ul class="list-group">
-            <li class="list-group-item active color-main">Dashboard</li>
-            <li class="list-group-item"><i class="far fa-clipboard"></i> Libreta diaria(NO) <span
-                class="badge badge-secondary float-right">25</span></li>
-            <li class="list-group-item">Ordenes pendientes(NO) <span class="badge badge-secondary float-right">25</span>
-            </li>
-            <li class="list-group-item">Demoradas(NO) <span class="badge badge-secondary float-right">25</span></li>
-            <li class="list-group-item">Garantias de fabrica(NO) </li>
-          </ul>
+          <div class="list-group">
+            <div class="list-group-item active color-main">Herramientas</div>
+            <a href="/" class="list-group-item list-group-item-action"><i class="fas fa-home mr-3"></i>Home</a>
+            <a href="/" class="list-group-item list-group-item-action d-none"><i class="fas fa-list mr-3"></i>Listas</a> <!-- TODO: Hacer vista de listas -->
+            <a href="/" class="list-group-item list-group-item-action"><i class="fas fa-money-bill-wave mr-3"></i>Cierre de caja</a>
+          </div>
         </div>
 
         <div class="col-md-9">
 
+          <!-- CARD INICIAL -->
+          <div class="card <?php echo isset($_GET['id']) ? "d-none" : "d-block" ; ?>">
+            <div class="card-header color-main">
+              Bienvenido!!!
+            </div>
+
+            <div class="card-body text-center">
+              <form method="GET" id="form-inicial" class="d-flex flex-column justify-content-center flex-nowrap w-50 p-4 mx-auto">
+                <img src="./img/sitemgr_photo_2186.jpg"  class="img-fluid" alt="logo system" >
+                <p class="text-muted">Que quieres buscar?</p>
+                <input type="text" name="id" id="" placeholder="ej: 151201">
+                <button type="submit" class="btn btn-primary color-main w-25 mx-auto mt-2">Buscar</button>
+              </form>
+            </div>
+
+
+          </div>
+
           <!-- CARD ARTICULO -->
-          <div class="card <?php if( !$single_result ){ echo "d-none";} ?>">
+          <div class="card <?php if( !$exito ){ echo "d-none";} ?>">
             <div class="card-header color-main">
               Datos del articulo
             </div>
@@ -181,8 +201,8 @@
                   +
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                  <button class="dropdown-item disabled" type="button">Cambiar estado</button>
-                  <button class="dropdown-item disabled" type="button">Actualizar ubicación</button>
+                  <button class="dropdown-item" data-toggle="modal" data-target="#modalEstado" type="button">Cambiar estado</button>
+                  <button class="dropdown-item disabled d-none" type="button">Actualizar ubicación</button> <!-- TODO: Hacer cosa de ubicaciones -->
                   <button class="dropdown-item" type="button" data-toggle="modal" data-target="#modalChat">Ver todo el chat</button>
                 </div>
               </div>
@@ -242,6 +262,22 @@
 
           </div>
 
+          <!-- CARD NO ENCONTRADO -->
+          <div class="card <?php echo count($exito) ? "d-none" : "d-block" ; ?>">
+            <div class="card-header color-main">
+              No encontrado
+            </div>
+
+            <div class="card-body">
+              <h1 class="text-center">No se encontro ningun registro</h1>
+            </div>
+
+
+          </div>
+
+
+
+
 
 
         </div>
@@ -272,7 +308,7 @@
             <div class="media text-muted mb-3">
               <span class="estado" <?php echo  $estado->color; ?>><?php echo  $estado->etiq; ?></span>
               <div>
-                <h5>145000 - Licuadora industrial - Moulinex</h4>
+                <h5><?php echo $registro['ID'] . " - " . $registro['TITULO'] . " - " . $registro['MARCA'];?></h4>
               </div>
             </div>
             <hr>
@@ -335,8 +371,93 @@
 
     </div>
   </div>
+
+  <!--MODALS-->
+  <div class="modal fade" id="modalEstado" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        
+        <form method="POST" class="list-group form-estados">
+          <input name="ID" type="text" hidden value="<?php if( isset($id) ){ echo $id; } ?>">
+          <input name="REMITENTE" type="text" hidden value="Admin-Web"> <!--TODO: hacer sistema de usuarios-->
+          <input name="TIPO" type="text" hidden value="0">
+          <textarea hidden name="CUERPO" class="form-control" id="exampleFormControlTextarea1" rows="3">
+          Admin-Web cambio el cabecera de este articulo</textarea>
+          <!-- <input name="ESTADO" type="text" hidden value="PENDIENTE"> -->
+
+          <div class="list-group-item active color-main">Cambiar estado</div>
+          
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="PENDIENTE" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-pendiente">P</span>
+            <h4 class="ml-2">Pendiente</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="ENTREGADO" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-entregado">E</span>
+            <h4 class="ml-2">Entregado</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="DEMORADO" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-demorado">D</span>
+            <h4 class="ml-2">Demorado</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="OK" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-ok">OK</span>
+            <h4 class="ml-2">OK</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="NO" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-no">NO</span>
+            <h4 class="ml-2">NO</h4>
+            </button>
+          </div>
+         
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="CONTINUAR" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-continuar">C</span>
+            <h4 class="ml-2">Continuar</h4>
+            </button>
+          </div>
+          
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="CONSULTA" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-consulta">??</span>
+            <h4 class="ml-2">Consulta/Presupuesto</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="SERV FORANEO" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-serv-foraneo">SF</span>
+            <h4 class="ml-2">Serv. Foraneo</h4>
+            </button>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex">
+            <button name="ESTADO" value="HIBERNAR" class="list-group-item list-group-item-action d-flex">
+            <span class="estado color-hibernar">H</span>
+            <h4 class="ml-2">Hibernar</h4>
+            </button>
+          </div>
+          
+        </form>
+
+      </div>
+    </div>
   </div>
 
+  
 
   
 
