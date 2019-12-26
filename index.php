@@ -70,6 +70,33 @@
 
   }
 
+
+  if(empty($_GET)){
+    $sql_pendientes = "SELECT * FROM `vistachat` WHERE `ESTADO`='PENDIENTE' AND GTIA='0' ORDER BY `ID` ASC";
+    $pendientes = ejecutarConsulta( $sql_pendientes );
+
+    $id_sig = $pendientes[0]['ID'];
+    $count_pendientes = count($pendientes);
+
+    $f_ini = $pendientes[0]['F_INICIAL'];
+    $fecha = substr($f_ini,0,4) ."-". substr($f_ini,4,2) . "-" . substr($f_ini,6,2);
+    
+    $date1 = new DateTime($fecha);
+    $date2 = new DateTime();
+    $diff = $date1->diff($date2);
+    
+    $dias =  $diff->days;
+
+
+
+    $now=getdate()["year"].getdate()["mon"];
+    $sql_entregados = "SELECT COUNT(*) as count FROM `vistachat` WHERE `ESTADO`='ENTREGADO' AND `F_FINAL` LIKE '$now%'";
+    $count_entregados = ejecutarConsulta($sql_entregados)['count'];
+
+  }
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -183,6 +210,39 @@
                 <input type="text" name="id" id="" placeholder="ej: 151201">
                 <button type="submit" class="btn btn-primary color-main w-25 mx-auto mt-2">Buscar</button>
               </form>
+            </div>
+
+            
+            
+            <h5 class="mb-3 font-italic text-muted text-center border-bottom">Estadisticas</h5>
+            <div class="mb-3 d-flex justify-content-around">
+              <div class="form-inicial p-1 text-center">
+                <div class="d-flex justify-content-center">
+                  <span class="estado color-pendiente mr-2">P</span>
+                  <h2><?php echo $count_pendientes; ?></h2>
+                </div>
+                <p class="mb-0">Reparaciones pendiente</p>
+                <small class="text-muted">Solo rep. con cargo</small>
+              </div>
+
+              <div class="form-inicial p-1 text-center">
+                <div class="d-flex justify-content-center">
+                  <span class="estado color-entregado mr-2">E</span>
+                  <h2><?php echo $count_entregados; ?></h2>
+                </div>
+                <p class="mb-0">Reparaciones entregadas</p>
+                <small class="text-muted">En el mes en curso</small>
+              </div>
+
+              <div class="form-inicial p-1 text-center">
+                <div class="d-flex justify-content-center">
+                  <span class="estado color-consulta mr-2"><i class="far fa-calendar-check"></i></span>
+                  <h2><?php echo $dias; ?></h2>
+                </div>
+                <p class="mb-0">Dias por reparación</p>
+                <small class="text-muted">Siguiente numero <?php echo $id_sig; ?></small>
+              </div>
+              
             </div>
 
 

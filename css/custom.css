@@ -180,6 +180,11 @@ body{
     color: #2607d7;
     margin-bottom: .5rem; 
   }
+  .form-inicial{
+    border:#d3d7d3 solid 1px;
+    padding: 1rem !important;
+    border-radius: 10px;
+  }
   
 
 
