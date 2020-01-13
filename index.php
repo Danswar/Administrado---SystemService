@@ -88,12 +88,24 @@
     $dias =  $diff->days;
 
 
-
-    $now=getdate()["year"].getdate()["mon"];
+	$mon= getdate()["mon"];
+	$mon= strlen($mon)==1 ? "0".$mon : $mon;
+    $now=getdate()["year"].$mon;
     $sql_entregados = "SELECT COUNT(*) as count FROM `vistachat` WHERE `ESTADO`='ENTREGADO' AND `F_FINAL` LIKE '$now%'";
     $count_entregados = ejecutarConsulta($sql_entregados)['count'];
 
   }
+
+function difFechas( $f_ini){
+	
+	$fecha = substr($f_ini,0,4) ."-". substr($f_ini,4,2) . "-" . substr($f_ini,6,2);
+    
+    $date1 = new DateTime($fecha);
+    $date2 = new DateTime();
+    $diff = $date1->diff($date2);
+    
+    return $diff->days;
+}
 
 
 
@@ -274,7 +286,10 @@
                   <h3><?php echo $registro['ID'] . " - " . $registro['TITULO'] . " - " . $registro['MARCA'];?></h3>
                   <p class="mb-1"><strong><i class="fas fa-map-marker-alt"></i> Ult. Ubicacion:</strong>
                     <?php echo $registro['UBICACION'];?></p>
-                  <p><i class="far fa-clock"></i> Tiene XX dias en la tienda</p>
+                  <p><i class="far fa-clock"></i> Tiene <?php 
+			echo difFechas( $registro['F_INICIAL'] ) ;				
+
+?> dias en la tienda</p>
                 </div>
               </div>
               <div class="card col-md-8 offset-md-4 color-msg-user">
